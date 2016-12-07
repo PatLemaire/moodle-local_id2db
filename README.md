@@ -1,3 +1,4 @@
 # moodle-local_id2db
 
-First attempt to publish a moodle plugin... PLEASE BE TOLERANT ;o)
+First attempt to publish a moodle plugin... 
+PLEASE BE TOLERANT and really patient ;o)
