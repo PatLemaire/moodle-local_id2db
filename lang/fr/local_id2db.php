@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * ID2DB enrolment plugin upgrade.
+ * ID2DB enrolment plugin language 'fr'
  *
  * @package    enrol_id2db
  * @copyright  2016 Patrick LEMAIRE

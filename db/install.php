@@ -17,8 +17,8 @@
 /**
  * ID2DB enrolment plugin installation.
  *
- * @package    enrol_database
- * @copyright  2010 Petr Skoda {@link http://skodak.org}
+ * @package    enrol_id2db
+ * @copyright  2016 Patrick LEMAIRE
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
