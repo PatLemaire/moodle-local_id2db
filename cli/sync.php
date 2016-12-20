@@ -1,8 +1,8 @@
 <?php
-//TODO : Tâche planifiée dans le CRON Moodle
-//       Empêcher la création de cohortes vides si étu fantôme
-//       Purger les cohortes vides et/ou non utilisées
-//       Limiter le nb de cohortes créées en une fois (limite de charge)
+//TODO : CRON task in Moodle
+//       Prevent from creating an empty cohorts if student don't exist
+//       Delete empty cohorts vides and/or non used one
+//       Limit the number of cohorts created at one time (load limit)
 
 define('CLI_SCRIPT', true);
 if (php_sapi_name() != "cli") {
@@ -19,24 +19,22 @@ require_once("$CFG->dirroot/enrol/cohort/locallib.php");
 // Ensure errors are well explained
 $CFG->debug = DEBUG_NORMAL;
 
-//$max_cohort_created = 500; // Nombre de cohortes créées en une fois...
-
-// Récupération des paramètres système du module
+// Retrieving system parameters from the module
 if ($config = get_config('local_id2db')) {
     $remoteusernamefield=$config->remoteusernamefield;
     $remotecohortfield=$config->remotecohortfield;
     $remotetablename=$config->remotetablename;
-    $PARAM_hote = $config->dbhost; // le chemin vers le serveur
+    $PARAM_hote = $config->dbhost; // Path to the server
     $PARAM_port = $config->dbport;
-    $PARAM_nom_bd = $config->dbname; // le nom de votre base de données
-    $PARAM_utilisateur = $config->dbuser; // nom d'utilisateur pour se connecter
-    $PARAM_mot_passe = $config->dbpass; // mot de passe de l'utilisateur pour se connecter
+    $PARAM_nom_bd = $config->dbname; // Name of your database
+    $PARAM_utilisateur = $config->dbuser; // Username to log in
+    $PARAM_mot_passe = $config->dbpass; // User password to log in
     $forbiddenchar = explode(",",$config->forbiddenchar); 
     $cohortdesc=$config->cohortdesc;
     $cohortsufx=$config->cohortsufx;
     $customquery=$config->customquery;
     if (strlen($customquery)>0) {
-        // TODO : gérer une erreur si {le champs}*} n'est pas présents dans la requête personnalisée
+        // TODO : Handle an error if {field}*} is not present in the custom query
         $customquery=  str_replace("{".$remoteusernamefield."}", $remoteusernamefield, $customquery);
         $customquery=  str_replace("{".$remotecohortfield."}", $remotecohortfield, $customquery);        
         $customquery=  str_replace("{".$remotetablename."}", $remotetablename, $customquery);
@@ -55,37 +53,35 @@ global $DB;
 
 $starttime = microtime();
 
-// extraire les codes apogée depuis mdl_course->idnumber dans un tableau : sql(mdl_course)->codelist[courseid,codelist]
+// Extract codes from mdl_course->idnumber in an array : sql(mdl_course)->codelist[courseid,codelist]
 echo get_string('stage1', 'local_id2db').$SautDeLigne. PHP_EOL;
 $sql = " SELECT c.id,c.idnumber FROM {course} c where idnumber<>''";
 $codelist = $DB->get_records_sql($sql);
-// On veut une liste de tous les codes utilisés (suppression des doublons et retrait des caractères inutiles)
-// Pour chaque codes dans codelist faire :
+// We want a list of all the codes used (removing duplicates and removing unnecessary characters)
 foreach ($codelist as $codes) {
-    //exploser codes dans code[] avec le séparateur 'virgule'
-    // TODO : rendre le séparateur paramétrable
+    // TODO : Make the separator customisable
     $code = explode(',', str_replace($forbiddenchar, '', $codes->idnumber));
-    // pour chaque code[i] faire :
+    // for every code[i] do :
     foreach ($code as $code_cohort) {
-        // on alimente une liste des codes utilisés
+        // We feed a list of codes used
         $liste_codes_utiles[] = $code_cohort;
     }
 }
 
-$nb_cohort_created = 0; // Initialisation du compteur de cohortes créées...
-//TODO : exploiter le compteur ci-dessus :o)
+$nb_cohort_created = 0; // Initializing the created cohort counter...
+//TODO : Operate the above counter :o)
 
-// dans $liste_codes_utiles[], on a une liste "propre" mais AVEC doublons possibles
+// in $liste_codes_utiles[], we have a list of "proper" codes but still with duplicate
 foreach (array_unique($liste_codes_utiles) as $code_cohort_utile) {
-    // recherche les login étu dans la bdd qui sont inscrits dans code[i] : sql(code[i])->logins[]
+    // Search for usernames in DB who are registred in code[i] : sql(code[i])->logins[]
     echo get_string('codecohort', 'local_id2db') . $code_cohort_utile.$SautDeLigne . PHP_EOL;
     if (strlen($customquery)>0) {
-        // Présence d'un requête personnalisée...
-        // TODO : gérer une erreur si les champs ne sont pas présents dans la requête personnalisée
+        // Presence of a custom query...
+        // TODO : Handle an error if the fields are not present in the custom query
         $customquery_tmp =  str_replace("{*}", "'".$code_cohort_utile."'", $customquery);
         $resultats = $connexion->query($customquery_tmp);
     } else {
-        // requête classique...
+        // Default query...
         $customquery_tmp = "SELECT distinct
         (" . $remoteusernamefield . ")
         FROM
@@ -101,38 +97,38 @@ foreach (array_unique($liste_codes_utiles) as $code_cohort_utile) {
     foreach ($liste_etu as $login) {        
         $liste_login[] = $login[$remoteusernamefield];
     }
-    $resultats->closeCursor();   // On libère temporairement le serveur de Bdd
-    if (Count($liste_etu) > 0) { // S'il y a au moins 1 étudiant
-        if (!is_cohort_already_exist($code_cohort_utile)) { // Si la cohorte n'existe pas encore
-            // Créer la cohorte
+    $resultats->closeCursor();   // Temporarily releasing DB connexion
+    if (Count($liste_etu) > 0) { // If there is at least 1 student
+        if (!is_cohort_already_exist($code_cohort_utile)) { // If the cohort does not exist yet
+            // Create Cohort
             echo get_string('createcohort', 'local_id2db') . $code_cohort_utile . "...".$SautDeLigne. PHP_EOL;
             $nb_cohort_created+=1;
-            // A revoir : if ($nb_cohort_created>$max_cohort_created) break;
+            // TODO : if ($nb_cohort_created>$max_cohort_created) break;
             $idcohort = create_cohort($code_cohort_utile,$cohortsufx,$cohortdesc);
         }
         if (is_id2db_cohort($code_cohort_utile)) {
             $idcohort = get_cohort_id($code_cohort_utile);
-            // On ajoute les étudiants manquants
+            // Missing students are added
             $etu_cohort = get_cohort_member($code_cohort_utile);
             $etu_a_ajouter = array_diff($liste_login, $etu_cohort);
             if (count($etu_a_ajouter) > 0) {
                 echo count($etu_a_ajouter) . get_string('missingstudents', 'local_id2db').$SautDeLigne.PHP_EOL;
                 add_users_to_cohort($etu_a_ajouter, $idcohort);
             }
-            // On supprime les étudiants en trop
+            // Extra students are suppressed
             $etu_a_supprimer = array_diff($etu_cohort, $liste_login);
             if (count($etu_a_supprimer) > 0) {
                 echo count($etu_a_supprimer) . get_string('obsostudent', 'local_id2db').$SautDeLigne.PHP_EOL;
                 remove_users_to_cohort($etu_a_supprimer, $idcohort);
             }
         } else {
-            // TODO : Erreur cohorte déjà existante à traiter !!!
-            // impossible de créer une cohorte portant le même idnumber
+            // TODO : Error "Cohort already exists" to be processed !!!
+            // Impossible to create a cohort with the same idnumber
             echo "Cohort en doublon !!".$SautDeLigne.PHP_EOL;
         }
     } else {
         echo get_string('nostudentindb', 'local_id2db') . $code_cohort_utile . $SautDeLigne.PHP_EOL;
-        // On doit traité le cas d'une cohorte obsolète !
+        // We must treat the case of an obsolete cohort!
         if (is_cohort_already_exist($code_cohort_utile) AND is_id2db_cohort($code_cohort_utile)) {
             delete_cohort($code_cohort_utile);
             echo get_string('obsocohort', 'local_id2db') . $code_cohort_utile .$SautDeLigne.PHP_EOL;
@@ -140,25 +136,21 @@ foreach (array_unique($liste_codes_utiles) as $code_cohort_utile) {
     }
 }
 
-// Etape N°2 (Mettre à jour les méthodes d'inscription avec cohortes)
+// Step 2 (Update enroll methods with cohorts)
 echo get_string('stage2', 'local_id2db').$SautDeLigne.PHP_EOL;
-// Pour chaque codes dans codelist faire :
 foreach ($codelist as $codes) {
-    //exploser codes dans code[] avec le séparateur 'virgule'
     $code = explode(',', str_replace($forbiddenchar, '', $codes->idnumber));
     $id_cours = $codes->id;
-    // pour chaque code[i] faire :
     echo get_string('forcourse', 'local_id2db') . $id_cours .$SautDeLigne. PHP_EOL;
-    // ajout des méthodes cohortes manquantes depuis idnumber
+    // Adding missing cohort methods with an specific idnumber
     echo get_string('addmissingcohortsmeth', 'local_id2db').$SautDeLigne.PHP_EOL;
     foreach ($code as $code_cohort) {
-        //supression des caractères inutiles
         $id_cohort = get_cohort_id($code_cohort);
         if ($id_cohort > 0) {
             echo get_string('addinstance', 'local_id2db') . $code_cohort . " (" . $id_cohort . ")";
-            // vérifier que la cohorte n'est pas déjà liée
+            // Check that the cohort is not already linked
             if (!is_cohort_already_linked($id_cours, $id_cohort)) {
-                // sinon ajouter une méthode
+                // Otherwise add a method
                 add_cohort_to_course($id_cours, $code_cohort);
                 echo get_string('addnewinstance', 'local_id2db').$SautDeLigne.PHP_EOL;
             } else {
@@ -166,13 +158,13 @@ foreach ($codelist as $codes) {
             }
         }
     }
-    // suppression des cohortes en trop
+    // Suppressing excess cohorts
     echo get_string('supprinstance', 'local_id2db').$SautDeLigne.PHP_EOL;
     $instances = $DB->get_recordset('enrol', array('enrol' => 'cohort', 'courseid' => $id_cours));
     foreach ($instances as $instance) {
     	if (strpos($instance->name,$cohortsufx)>0) {
         $cohort = $DB->get_record('cohort', array('id' => $instance->customint1));
-        // on cherche la présence dans les codes du idnumber (case-insensitice)
+        // We seek the presence in the codes for idnumber (case-insensitice)
         if (!in_array(strtolower($cohort->idnumber), array_map('strtolower',$code))) {
             echo get_string('delinstance', 'local_id2db') . $instance->id . $SautDeLigne.PHP_EOL;
             $enrol = enrol_get_plugin('cohort');
@@ -183,12 +175,11 @@ foreach ($codelist as $codes) {
     }
 }
 
-// Etape N°3 (suppression des méthodes pour les cours sans idnumber)
-// TODO : Inclure les cours avec IDnumber mais pas de code valide
+// Step N ° 3 (deletion of methods from courses without idnumber)
+// TODO : Include courses with IDnumber but no valid codes
 echo get_string('stage3', 'local_id2db').$SautDeLigne.PHP_EOL;
 $sql = " SELECT c.id FROM {course} c where idnumber=''";
 $coursSansIDnumber = $DB->get_records_sql($sql);
-// Pour chaque codes dans coursSansIDnumber faire :
 foreach ($coursSansIDnumber as $cours) {
 	$si_methodeCohort = $DB->count_records('enrol', array('enrol' => 'cohort', 'courseid' => $cours->id));
 	if ($si_methodeCohort!=0) {

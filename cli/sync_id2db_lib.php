@@ -30,7 +30,7 @@ function get_cohort_id($idnumber) {
         return $result->id;
     }
     return 0;
-    // TODO: faire une test d'unicité
+    // TODO: Check if unique
 }
 
 /**
@@ -64,8 +64,8 @@ function is_id2db_cohort($idnumber) {
             $cohortsufx=$config->cohortsufx;
         }
         if (strpos($cohort->name,$cohortsufx)>0) {
-            // La chaine contient le suffixe !! Ce devrait être une cohorte id2db...
-            //TODO : vérifier que c'est bien à la fin du nom que se trouve le suffixe
+            // The string contains the suffix !! This should be an id2db cohort ...
+            // TODO : Check that the suffix is at the end of the name
             return true;
         }
       }
@@ -122,7 +122,7 @@ function add_cohort_to_course($courseid, $cohort_idnumber) {
             $cohortsufx=$config->cohortsufx;
         }
     $enrol->add_instance($course, array('name' => $cohort_idnumber . ' '.$cohortsufx, 'status' => 0, 'customint1' => get_cohort_id($cohort_idnumber), 'roleid' => 5, 'customint2' => 0));
-    // forcer la synchro après ajout d'une nouvelle méthode...
+    // Force the sync after adding a new method ...
     $trace = new null_progress_trace();
     enrol_cohort_sync($trace, $course->id);
     $trace->finished();
@@ -152,6 +152,7 @@ function is_cohort_already_linked($courseid, $cohortid) {
  * @return bool
  */
 function add_users_to_cohort($users, $cohortid) {
+	// TODO : Untraducted strings !!!
     global $DB;
     if (php_sapi_name() != "cli") {
     // In cli-mode
@@ -182,6 +183,7 @@ function add_users_to_cohort($users, $cohortid) {
  * @return bool
  */
 function remove_users_to_cohort($users, $cohortid) {
+	// TODO : Untraducted strings !!!
     global $DB;
     foreach ($users as $user) {
         if ($DB->get_record('cohort', array('id' => $cohortid))) {
