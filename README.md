@@ -26,7 +26,8 @@ Place the unzipped folder in the moodle/local/ (should be moodle/local/id2db ren
 
 Go to your moodle/admin/index.php and refresh to see the new module to be installed. You will be asked to enter some parameters and you need to add a task in the CRONTAB of your server.
 
-For example, if you want the task to run every hour : 
+For example, if you want the task to run every hour: 
+```
 0 * * * *   apache       /usr/bin/php /path/to/moodle/local/id2db/cli/sync.php >/dev/null 2>&1
-
+```
 Parameters are still reachable from local plugin administration menu of the site.
