@@ -17,7 +17,7 @@
 /**
  * ID2DB enrolment plugin language 'en'
  *
- * @package    enrol_id2db
+ * @package    local_id2db
  * @copyright  2016 Patrick LEMAIRE
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */  
