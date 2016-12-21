@@ -52,6 +52,7 @@ $string['remoteusernamefield_desc'] = 'Enter the field name in the external data
 $string['customquery'] = 'Custom Query';
 $string['customquery_desc'] = 'It is possible that the data source is in a more complex form and requires the use of a more elaborate query. Enter here the query needed to get the data. Note that {*} indicates the location in the query where the code will be compared ...';
 
+$string['othersettings'] = 'Other settings';
 $string['forbiddenchar'] = 'Characters to be deleted';
 $string['forbiddenchar_desc'] = 'List of characters, separated by a comma, which will be automatically deleted when reading codes.';
 $string['cohortsufx'] = 'Cohort name suffix';

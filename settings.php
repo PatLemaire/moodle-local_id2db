@@ -55,7 +55,7 @@ if ($hassiteconfig) {
         {code} = {*}'));
     
     //---- Autres
-    $settings->add(new admin_setting_heading('local_id2db_others', "Autres", ''));
+    $settings->add(new admin_setting_heading('local_id2db_others', get_string('othersettings', 'local_id2db'), ''));
     
     $settings->add(new admin_setting_configtext('local_id2db/forbiddenchar', get_string('forbiddenchar', 'local_id2db'), get_string('forbiddenchar_desc', 'local_id2db'), ' ,%,/,-,*,\',",+,_,&,#,$,Â£,â‚¬'));
     $settings->add(new admin_setting_configtext('local_id2db/cohortsufx', get_string('cohortsufx', 'local_id2db'), get_string('cohortsufx_desc', 'local_id2db'), get_string('cohortsufx_default', 'local_id2db')));

@@ -52,6 +52,7 @@ $string['remoteusernamefield_desc'] = 'Renseigner le nom du champ dans la base d
 $string['customquery'] = 'Requête personnalisée';
 $string['customquery_desc'] = 'Il est possible que la source de données se présente sous une forme plus complexe et nécessite l\'utilisation d\'une requête plus élaborée. Saisissez ici la requête nécessaire pour obtenir les données. Notez que {*} indique l\'endroit dans la requête où le code sera comparé...';
 
+$string['othersettings'] = 'Autres réglages';
 $string['forbiddenchar'] = 'Caractères à supprimer';
 $string['forbiddenchar_desc'] = 'Liste des caractères, séparés par une virgule, qui seront automatiquement supprimer à la lecture des codes.';
 $string['cohortsufx'] = 'Suffixe du nom des cohortes';
