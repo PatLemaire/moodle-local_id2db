@@ -12,10 +12,13 @@ What we are proposing here is a mechanism that still operates a database but tha
 ## What this module does...
 3 steps :
 * Step 1: Update Cohorts
-Look for all the courses with IDNumber. Every value is splited into codes. Each code is submitted to the database and if only one user is found, a cohort is created.
+
+Look for all the courses with IDNumber. Every value is splited into codes. Each code is submitted to the database and if only one user is found, a cohort is created. If there are new students, they will be added to the cohort, if there are fewer, they will be removed from the cohort.
 * Step 2: Update registration methods with cohorts
+
 From previous step, the methods are attached to the courses or else removed.
 * Step 3: Removing methods for courses without idnumber
+
 Final step, if a course had idnumber but it has been removed after, the methods are also removed.
 
 ## A few points...
